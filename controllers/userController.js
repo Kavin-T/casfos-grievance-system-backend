@@ -24,7 +24,10 @@ const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  const user = await User.findByIdAndUpdate(id, updates, { new: true });
+  const user = await User.findByIdAndUpdate(id, updates, {
+     new: true,
+     runValidators: true
+  });
   if (!user) {
     res.status(404);
     throw new Error("User not found");

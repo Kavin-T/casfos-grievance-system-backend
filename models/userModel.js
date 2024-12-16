@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please enter designation"],
       trim: true,
-      enum: ['Estate Officer','Complaint Raiser','Executive Engineer', 'Assistant Engineer', 'Junior Engineer'],
+      enum: ['ESTATE_OFFICER','COMPLAINT_RAISER','EXECUTIVE_ENGINEER', 'ASSISTANT_ENGINEER', 'JUNIOR_ENGINEER'],
     },
     email: {
       type: String,

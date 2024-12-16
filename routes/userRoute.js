@@ -14,9 +14,9 @@ const router = express.Router();
 //router.use(validateToken);
 
 router.post("/add", addUser);
-router.put("/update/password/:id", validateDesignation(["Estate Officer"]), updatePassword);
-router.put("/update/:id", validateDesignation(["Estate Officer"]), updateUser);
-router.delete("/delete/:id", validateDesignation(["Estate Officer"]), deleteUser);
-router.get("/all", validateDesignation(["Estate Officer"]), getAllUsers);
+router.put("/update/password/:id", updatePassword);
+router.put("/update/:id", updateUser);
+router.delete("/delete/:id", deleteUser);
+router.get("/all", getAllUsers);
 
 module.exports = router;
