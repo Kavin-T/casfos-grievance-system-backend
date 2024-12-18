@@ -107,6 +107,11 @@ const complaintSchema = new mongoose.Schema({
     trim: true,
     default: null, // Default value is null
   },
+  resolvedName: {
+    type: String,
+    default: null,
+    trim: true,
+  },
 });
 
 // Create and export the model
