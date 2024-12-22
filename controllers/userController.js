@@ -6,6 +6,11 @@ const bcrypt = require("bcryptjs");
 const addUser = asyncHandler(async (req, res) => {
   const { username, designation, email, phoneNumber, password } = req.body;
 
+  if(!password){
+    res.status(400);
+    throw new Error("Password is required");
+  }
+  
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     res.status(400);
@@ -15,51 +20,38 @@ const addUser = asyncHandler(async (req, res) => {
   // Hash the password
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const user = await User.create({ username, designation, email, phoneNumber, passwordHash });
+  const user = await User.create({
+    username,
+    designation,
+    email,
+    phoneNumber,
+    passwordHash,
+  });
   res.status(200).json({ message: "User added successfully", user });
 });
 
 // Update User Details
 const updateUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
+  const { id, password, ...updates } = req.body;
 
-  const user = await User.findByIdAndUpdate(id, updates, {
-     new: true,
-     runValidators: true
-  });
+  // Find the user by ID
+  const user = await User.findById(id);
   if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
 
+  // Handle password update if password is provided
+  if (password) {
+    const passwordHash = await bcrypt.hash(password, 10);
+    user.passwordHash = passwordHash;
+  }
+
+  // Update other user details
+  Object.assign(user, updates); // Merge updates into the user object
+  await user.save();
+
   res.status(200).json({ message: "User updated successfully", user });
-});
-
-// Update Password
-const updatePassword = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { oldPassword, newPassword } = req.body;
-
-    const user = await User.findById(id);
-    if (!user) {
-        res.status(404);
-        throw new Error("User not found");
-    }
-
-    // Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
-    if (!isMatch) {
-        res.status(400);
-        throw new Error("Old password is incorrect");
-    }
-
-    // Hash the new password
-    const newPasswordHash = await bcrypt.hash(newPassword, 10);
-    user.passwordHash = newPasswordHash;
-    await user.save();
-
-    res.status(200).json({ message: "Password updated successfully" });
 });
 
 // Delete User
@@ -86,5 +78,4 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllUsers,
-  updatePassword,
 };

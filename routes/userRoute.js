@@ -14,8 +14,7 @@ const router = express.Router();
 //router.use(validateToken);
 
 router.post("/add", addUser);
-router.put("/update/password/:id", updatePassword);
-router.put("/update/:id", updateUser);
+router.put("/update", updateUser);
 router.delete("/delete/:id", deleteUser);
 router.get("/all", getAllUsers);
 

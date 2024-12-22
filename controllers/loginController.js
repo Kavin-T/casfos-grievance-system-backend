@@ -20,11 +20,9 @@ const validateLogin = asyncHandler(async (req, res) => {
     if (isPasswordMatch) {
       const accessToken = jwt.sign(
         {
-          user: {
-            id: user._id,
-            username: user.username,
-            designation: user.designation,
-          },
+          id: user._id,
+          username: user.username,
+          designation: user.designation,
         },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }

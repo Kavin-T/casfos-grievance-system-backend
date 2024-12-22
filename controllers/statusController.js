@@ -7,8 +7,9 @@ const Complaint = require('../models/complaintModel');
 const raisedToJeAcknowledged = asyncHandler(async (req, res) => {
     try {
         console.log("Request Body:", req.body);
-        const { id, username } = req.body; 
+        const { id } = req.body; 
         console.log("Complaint ID:", id);
+        const username = req.user.username;
 
         if (!username) {
           res.status(400); // Not found status

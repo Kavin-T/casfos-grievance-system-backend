@@ -9,8 +9,6 @@ const errorHandler = (err, req, res, next) => {
         const fieldName = Object.keys(err.keyValue)[0]; 
         const fieldValue = err.keyValue[fieldName]; 
         errorMessage = `${fieldName} already exists with the value "${fieldValue}"`;
-    } else {
-        res.status(500);
     }
 
     const statusCode = res.statusCode ? res.statusCode : 500;
