@@ -110,8 +110,8 @@ const getFiltersForPreviousMonth = () => {
     status: "",
     startDate: "",
     endDate: "",
-    createdStartDate: firstDayOfPreviousMonth.toISOString(),
-    createdEndDate: lastDayOfPreviousMonth.toISOString(),
+    createdStartDate: "",
+    createdEndDate: "",
     acknowledgedStartDate: "",
     acknowledgedEndDate: "",
     resolvedStartDate: "",
@@ -119,9 +119,7 @@ const getFiltersForPreviousMonth = () => {
   };
 };
 
-// 0 0 1 * *          -- executed at midnight of first of every month
-
-cron.schedule("0 0 1 * *", async () => {
+cron.schedule("*/30 * * * * *", async () => {
   const filters = getFiltersForPreviousMonth();
 
   try {

@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const port = process.env.PORT || 5000;
 
-require("./automatedJob/reportMail");
+//require("./automatedJob/reportMail");
 
 app.use(cors());
 
