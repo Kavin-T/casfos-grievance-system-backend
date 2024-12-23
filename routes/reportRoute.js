@@ -1,14 +1,11 @@
 const express = require("express");
 const {
-    generateComplaintReport
-  } = require("../controllers/reportController");
-const validateDesignation = require("../middleware/validateDesignationHandler");
+  generateComplaintReport
+} = require("../controllers/reportController");
 const validateToken = require("../middleware/validateTokenHandler");
-
 const router = express.Router();
 
-//router.use(validateToken);
-
-router.get("/", generateComplaintReport);
+router.get("/automate",generateComplaintReport);
+router.get("/", validateToken, generateComplaintReport);
 
 module.exports = router;

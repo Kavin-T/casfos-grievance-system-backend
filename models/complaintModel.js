@@ -57,7 +57,7 @@ const complaintSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'RAISED', // Default value
+    default: 'RAISED',
     enum: [
       'RAISED',
       'JE_ACKNOWLEDGED',
@@ -69,52 +69,51 @@ const complaintSchema = new mongoose.Schema({
       'RESOURCE_REQUIRED',
       'AE_NOT_SATISFIED',
       'EE_NOT_SATISFIED',
-    ], // Allowable statuses
+    ],
   },
   price: {
-    type: mongoose.Schema.Types.Decimal128, // Use Decimal128 for large values
-    default: 0, // Default value is 0
+    type: mongoose.Schema.Types.Decimal128,
+    default: 0,
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Automatically set creation time
+    default: Date.now,
   },
   acknowledgeAt: {
     type: Date,
-    default: null, // Default value is null
+    default: null,
   },
   resolvedAt: {
     type: Date,
-    default: null, // Default value is null
+    default: null,
   },
   remark_AE: {
     type: String,
     trim: true,
-    default: null, // Default value is null
+    default: null,
   },
   remark_EE: {
     type: String,
     trim: true,
-    default: null, // Default value is null
+    default: null,
   },
   remark_JE: {
     type: String,
     trim: true,
-    default: null, // Default value is null
+    default: null,
   },
   remark_CR: {
     type: String,
     trim: true,
-    default: null, // Default value is null
+    default: null,
   },
   resolvedName: {
     type: String,
-    default: null,
     trim: true,
+    default: null,
   },
 });
 
-// Create and export the model
 const Complaint = mongoose.model('Complaint', complaintSchema);
 
 module.exports = Complaint;

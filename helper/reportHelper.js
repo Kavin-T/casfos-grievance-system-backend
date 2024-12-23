@@ -1,148 +1,140 @@
-const { Document, Packer, Table, TableRow, TableCell, Paragraph, TextRun } = require('docx');
+const generateReport = async (complaints) => {
+  let htmlContent = `
+  <html>
+      <head>
+          <title>Complaints Report</title>
+          <style>
+              *, *::before, *::after {
+                  box-sizing: border-box;
+              }
+              body {
+                  padding-left: 20px;
+                  padding-right: 20px;
+                  font-family: Arial, sans-serif;
+              }
+              table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 20px;
+                  font-size: 12px;
+              }
+              th, td {
+                  padding: 12px 15px; /* Increased padding for better readability */
+                  text-align: left;
+                  border: 1px solid #ddd;
+              }
+              th {
+                  background-color: rgb(255, 255, 255);
+                  font-weight: bold;
+              }
 
-const generateReport = async (complaints, filters) => {
-  const doc = new Document();
+              .logo {
+                  width: 100px;
+                  height: auto;
+                  margin-bottom: 20px;
+              }
+              .heading {
+                  text-align: center;
+                  font-size: 24px;
+                  font-weight: bold;
+                  margin-bottom: 20px;
+              }
+              .footer {
+                  margin-top: 20px;
+                  text-align: right;
+                  font-size: 18px;
+                  font-weight: bold;
+                  padding-right: 20px; /* Right padding for footer */
+                  font-size: 24px;
+                  font-weight: bold;
+              }
+              .date {
+                  position: absolute;
+                  top: 20px;
+                  right: 20px;
+                  font-size: 20px; /* Reduced font size */
+                  font-weight: normal;
+              }
 
-  // Add title
-  doc.addSection({
-    properties: {},
-    children: [
-      new Paragraph({
-        children: [
-          new TextRun('Complaint Report'),
-        ],
-      }),
-    ],
-  });
+          </style>
+      </head>
+      <body>
+          <!-- Logo and Heading -->
+          <img src="http://localhost:${process.env.PORT}/assets/images/casfos_logo.jpg" class="logo" alt="Logo">
+          <div class="heading">CENTRAL ACADEMY FOR STATE FOREST SERVICE</div>
+          <div class="heading">COMPLAINT REPORT</div>
+          <div class="date">Date: ${new Date().toLocaleDateString()}</div>
+          <!-- Complaints Table -->
+          <table>
+              <thead>
+                  <tr>
+                      <th>S.No</th>
+                      <th>Raiser Name</th>
+                      <th>Subject</th>
+                      <th>Department</th>
+                      <th>Created At</th>
+                      <th>Resolved At</th>
+                      <th>Status</th>
+                      <th>Duration (Days)</th>
+                      <th>Price</th>
+                  </tr>
+              </thead>
+              <tbody>
+  `;
 
-  // Add filters applied to the report
-  const filterParagraph = new Paragraph({
-    children: [
-      new TextRun('Filters Applied: '),
-      new TextRun(JSON.stringify(filters, null, 2)),
-    ],
-  });
-
-  doc.addSection({
-    children: [filterParagraph],
-  });
-
-  // Create the table for complaints
-  const tableRows = [
-    new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph('S. No')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Raiser Name')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Subject')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Date')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Details')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Department')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Premises')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Location')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Price')],
-        }),
-        new TableCell({
-          children: [new Paragraph('Duration (Days)')],
-        }),
-      ],
-    }),
-  ];
-
-  let totalPrice = 0;
+  let totalAmount = 0;
 
   complaints.forEach((complaint, index) => {
-    if (!complaint) {
-      console.log(`Complaint at index ${index} is undefined or null.`);
-      return; // Skip this iteration
+    const formattedCreatedAt = complaint.createdAt
+        ? new Date(complaint.createdAt).toISOString().split('T')[0]
+        : 'N/A';
+    const formattedResolvedAt = complaint.resolvedAt
+        ? new Date(complaint.resolvedAt).toISOString().split('T')[0]
+        : 'N/A';
+    
+    const status = complaint.status;
+
+    let duration = 'N/A';
+    if (complaint.createdAt && complaint.resolvedAt) {
+        const createdAtDate = new Date(complaint.createdAt);
+        const resolvedAtDate = new Date(complaint.resolvedAt);
+        const diffTime = Math.abs(resolvedAtDate - createdAtDate);
+        duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
-  
-    // Safe extraction of fields with fallback values
-    const creator = complaint?.creator || 'N/A';
-    const raiserName = complaint?.raiserName || 'N/A';
-    const subject = complaint?.subject || 'N/A';
-    const date = complaint?.date ? new Date(complaint.date).toLocaleDateString() : 'N/A';
-    const details = complaint?.details || 'N/A';
-    const department = complaint?.department || 'N/A';
-    const premises = complaint?.premises || 'N/A';
-    const location = complaint?.location || 'N/A';
-    const price = complaint?.price || 0;
-    const duration = complaint?.resolvedAt && complaint?.createdAt
-      ? Math.ceil((new Date(complaint.resolvedAt) - new Date(complaint.createdAt)) / (1000 * 60 * 60 * 24))
-      : 'N/A';
-  
-    console.log(`Processing complaint ${index + 1}:`, {
-      creator,
-      raiserName,
-      subject,
-      date,
-      details,
-      department,
-      premises,
-      location,
-      price,
-      duration,
-    });
-  
-    // Build table rows safely
-    tableRows.push(
-      new TableRow({
-        children: [
-          new TableCell({ children: [new Paragraph((index + 1).toString())] }),
-          new TableCell({ children: [new Paragraph(raiserName)] }),
-          new TableCell({ children: [new Paragraph(subject)] }),
-          new TableCell({ children: [new Paragraph(date)] }),
-          new TableCell({ children: [new Paragraph(details)] }),
-          new TableCell({ children: [new Paragraph(department)] }),
-          new TableCell({ children: [new Paragraph(premises)] }),
-          new TableCell({ children: [new Paragraph(location)] }),
-          new TableCell({ children: [new Paragraph(price.toString())] }),
-          new TableCell({ children: [new Paragraph(duration.toString())] }),
-        ],
-      })
-    );
-  });  
 
-  // Add the table with complaint data
-  doc.addSection({
-    children: [
-      new Table({
-        rows: tableRows,
-      }),
-    ],
+    const price = parseFloat(complaint.price.toString()) || 0;
+    totalAmount += price;
+
+    htmlContent += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${complaint.raiserName || 'N/A'}</td>
+            <td>${complaint.subject || 'N/A'}</td>
+            <td>${complaint.department || 'N/A'}</td>
+            <td>${formattedCreatedAt}</td>
+            <td>${formattedResolvedAt}</td>
+            <td>${status}</td>
+            <td>${duration}</td>
+            <td>${price.toFixed(2)}</td>
+        </tr>
+    `;
   });
 
-  // Add total price at the end
-  doc.addSection({
-    children: [
-      new Paragraph({
-        children: [
-          new TextRun(`Total Price: ${totalPrice}`),
-        ],
-      }),
-    ],
-  });
-  console.log("hi");
+  htmlContent += `
+              </tbody>
+          </table>
 
-  // Convert the document to a buffer to send in the response
-  const buffer = await Packer.toBuffer(doc);
-  return buffer;
+          <!-- Total Amount -->
+          <div class="footer">
+              Total Amount: ₹${totalAmount.toFixed(2)}
+          </div>
+      </body>
+  </html>
+  `;
+
+  const file = { content: htmlContent };
+  
+  return file;
 };
 
 module.exports = { generateReport };

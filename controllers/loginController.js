@@ -12,7 +12,7 @@ const validateLogin = asyncHandler(async (req, res) => {
   const user = await User.findOne({ username });
 
   if (!user) {
-    res.status(400);
+    res.status(404);
     throw new Error("Username not found");
   } else {
     const isPasswordMatch = await bcrypt.compare(password, user.passwordHash);

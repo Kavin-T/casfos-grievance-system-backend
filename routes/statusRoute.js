@@ -13,11 +13,7 @@ const {
 } = require("../controllers/statusController");
 const { upload, ensureTempDirectory } = require("../middleware/fileHandler");
 const validateDesignation = require("../middleware/validateDesignationHandler");
-const validateToken = require("../middleware/validateTokenHandler");
-
 const router = express.Router();
-
-router.use(validateToken);
 
 router.put("/raised/je-acknowledged", raisedToJeAcknowledged);
 router.post(
@@ -29,7 +25,6 @@ router.post(
   ]),
   jeAcknowledgedToJeWorkdone
 );
-
 router.put("/je-workdone/ae-acknowledged", jeWorkDoneToAeAcknowledged);
 router.put("/ae-acknowledged/ee-acknowledged", aeAcknowledgedToEeAcknowledged);
 router.put("/ee-acknowledged/resolved", eeAcknowledgedToResolved);

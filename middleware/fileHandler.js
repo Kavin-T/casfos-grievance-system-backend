@@ -8,7 +8,6 @@ const tempUploadDir = path.resolve(__dirname, '../uploads/temp');
 const ensureTempDirectory = asyncHandler(async (req, res, next) => {
   if (!fs.existsSync(tempUploadDir)) {
     fs.mkdirSync(tempUploadDir, { recursive: true });
-    console.log('Temp directory created inside uploads.');
   }
   next();
 });
