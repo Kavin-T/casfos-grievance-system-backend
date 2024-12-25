@@ -24,6 +24,12 @@ const raisedToJeAcknowledged = asyncHandler(async (req, res) => {
     throw new Error('Complaint not found');
   }
 
+  if (complaint.status === 'JE_ACKNOWLEDGED' || complaint.status === 'RESOURCE_REQUIRED') {
+    return res.status(200).json({
+      message: 'Complaint already acknowledged.'
+    });
+  }
+
   complaint.status = 'JE_ACKNOWLEDGED';
   complaint.acknowledgeAt = new Date();
   complaint.resolvedName = username;
@@ -48,6 +54,28 @@ const jeAcknowledgedToJeWorkdone = asyncHandler(async (req, res) => {
   if (!complaint) {
     res.status(404);
     throw new Error('Complaint not found.');
+  }
+
+  if (complaint.status === 'JE_WORKDONE') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
+  }
+
+  if (req.files?.imgAfter) {
+    const imgAfterSize = req.files.imgAfter[0].size;
+    if (imgAfterSize > 5 * 1024 * 1024) {
+      res.status(400);
+      throw new Error("File size of Image exceeds 5MB.");
+    }
+  }
+
+  if (req.files?.vidAfter) {
+    const vidAfterSize = req.files.vidAfter[0].size;
+    if (vidAfterSize > 100 * 1024 * 1024) {
+      res.status(400);
+      throw new Error("File size of Video exceeds 100MB.");
+    }
   }
 
   const uploadsDir = path.resolve(__dirname, '../uploads');
@@ -100,6 +128,12 @@ const jeWorkDoneToAeAcknowledged = asyncHandler(async (req, res) => {
     throw new Error('Complaint not found.');
   }
 
+  if (complaint.status === 'AE_ACKNOWLEDGED' || complaint.status === 'AE_NOT_SATISFIED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
+  }
+
   complaint.status = 'AE_ACKNOWLEDGED';
   await complaint.save();
 
@@ -121,6 +155,12 @@ const aeAcknowledgedToEeAcknowledged = asyncHandler(async (req, res) => {
   if (!complaint) {
     res.status(404);
     throw new Error('Complaint not found.');
+  }
+
+  if (complaint.status === 'EE_ACKNOWLEDGED' || complaint.status === 'EE_NOT_SATISFIED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
   }
 
   complaint.status = 'EE_ACKNOWLEDGED';
@@ -147,6 +187,12 @@ const eeAcknowledgedToResolved = asyncHandler(async (req, res) => {
     throw new Error('Complaint not found.');
   }
 
+  if (complaint.status === 'RESOLVED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
+  }
+
   complaint.status = 'RESOLVED';
   complaint.resolvedAt = new Date();
   await complaint.save();
@@ -169,6 +215,12 @@ const jeWorkdoneToAeNotSatisfied = asyncHandler(async (req, res) => {
   if (!complaint) {
     res.status(404);
     throw new Error('Complaint not found.');
+  }
+
+  if (complaint.status === 'AE_NOT_SATISFIED' || complaint.status === 'AE_ACKNOWLEDGED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
   }
 
   complaint.status = 'AE_NOT_SATISFIED';
@@ -195,6 +247,12 @@ const aeAcknowledgedToEeNotSatisfied = asyncHandler(async (req, res) => {
     throw new Error('Complaint not found.');
   }
 
+  if (complaint.status === 'EE_NOT_SATISFIED' || complaint.status === 'EE_ACKNOWLEDGED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
+  }
+
   complaint.status = 'EE_NOT_SATISFIED';
   complaint.remark_EE = remark_EE;
   await complaint.save();
@@ -217,6 +275,12 @@ const raisedToResourceRequired = asyncHandler(async (req, res) => {
   if (!complaint) {
     res.status(404);
     throw new Error('Complaint not found.');
+  }
+
+  if (complaint.status === 'RESOURCE_REQUIRED' || complaint.status === 'JE_ACKNOWLEDGED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
   }
 
   complaint.status = 'RESOURCE_REQUIRED';
@@ -243,6 +307,12 @@ const resourceRequiredToClosed = asyncHandler(async (req, res) => {
     throw new Error('Complaint not found.');
   }
 
+  if (complaint.status === 'CLOSED' || complaint.status === 'RAISED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
+  }
+
   complaint.status = 'CLOSED';
   await complaint.save();
 
@@ -264,6 +334,12 @@ const resourceRequiredToRaised = asyncHandler(async (req, res) => {
   if (!complaint) {
     res.status(404);
     throw new Error('Complaint not found.');
+  }
+
+  if (complaint.status === 'RAISED' || complaint.status === 'CLOSED') {
+    return res.status(200).json({
+      message: 'Complaint already updated.'
+    });
   }
 
   complaint.status = 'RAISED';

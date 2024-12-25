@@ -166,8 +166,69 @@ const yourActivity = asyncHandler(async (req, res) => {
   res.status(200).json(complaints);
 });
 
+const getComplaintStatistics = asyncHandler(async (req, res) => {
+  const { year, month } = req.query;
+
+  let filter = {};
+
+  // If a specific year is provided, filter by year
+  if (year && year !== "All") {
+    filter.createdAt = {
+      $gte: new Date(`${year}-01-01`),
+      $lt: new Date(`${Number(year) + 1}-01-01`),
+    };
+  }
+
+  // If a specific month is provided, filter by month
+  if (month && month !== "All") {
+    const monthStart = new Date(`${year || new Date().getFullYear()}-${month}-01`);
+    const monthEnd = new Date(monthStart);
+    monthEnd.setMonth(monthStart.getMonth() + 1);
+    filter.createdAt = {
+      ...filter.createdAt,
+      $gte: monthStart,
+      $lt: monthEnd,
+    };
+  }
+
+  const complaints = await Complaint.find(filter);
+
+  const totalComplaints = complaints.length;
+  const pendingComplaints = complaints.filter(
+    (c) => c.status !== "RESOLVED"
+  ).length;
+  const resolvedComplaints = complaints.filter(
+    (c) => c.status === "RESOLVED"
+  ).length;
+
+  const departmentWise = complaints.reduce(
+    (acc, complaint) => {
+      const dept = complaint.department;
+      acc[dept] = acc[dept] || { pending: 0, resolved: 0, price: 0 };
+      if (complaint.status === "RESOLVED") acc[dept].resolved++;
+      else acc[dept].pending++;
+
+      // Adding to total price for each department
+      acc[dept].price += parseFloat(complaint.price);
+      return acc;
+    },
+    {}
+  );
+
+  const totalPrice = complaints.reduce((sum, c) => sum + parseFloat(c.price), 0);
+
+  res.json({
+    totalComplaints,
+    pendingComplaints,
+    resolvedComplaints,
+    departmentWise,
+    totalPrice,
+  });
+});
+
 module.exports = {
   addComplaint,
   fetchComplaints,
   yourActivity,
+  getComplaintStatistics
 };

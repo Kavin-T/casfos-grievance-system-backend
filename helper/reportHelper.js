@@ -60,7 +60,9 @@ const generateReport = async (complaints) => {
       </head>
       <body>
           <!-- Logo and Heading -->
-          <img src="http://localhost:${process.env.PORT}/assets/images/casfos_logo.jpg" class="logo" alt="Logo">
+          <img src="http://localhost:${
+            process.env.PORT
+          }/assets/images/casfos_logo.jpg" class="logo" alt="Logo">
           <div class="heading">CENTRAL ACADEMY FOR STATE FOREST SERVICE</div>
           <div class="heading">COMPLAINT REPORT</div>
           <div class="date">Date: ${new Date().toLocaleDateString()}</div>
@@ -69,11 +71,12 @@ const generateReport = async (complaints) => {
               <thead>
                   <tr>
                       <th>S.No</th>
+                      <th>Complaint ID</th>
                       <th>Raiser Name</th>
                       <th>Subject</th>
                       <th>Department</th>
-                      <th>Created At</th>
-                      <th>Resolved At</th>
+                      <th>Created On</th>
+                      <th>Resolved On</th>
                       <th>Status</th>
                       <th>Duration (Days)</th>
                       <th>Price</th>
@@ -86,20 +89,20 @@ const generateReport = async (complaints) => {
 
   complaints.forEach((complaint, index) => {
     const formattedCreatedAt = complaint.createdAt
-        ? new Date(complaint.createdAt).toISOString().split('T')[0]
-        : 'N/A';
+      ? new Date(complaint.createdAt).toISOString().split("T")[0]
+      : "N/A";
     const formattedResolvedAt = complaint.resolvedAt
-        ? new Date(complaint.resolvedAt).toISOString().split('T')[0]
-        : 'N/A';
-    
+      ? new Date(complaint.resolvedAt).toISOString().split("T")[0]
+      : "N/A";
+
     const status = complaint.status;
 
-    let duration = 'N/A';
+    let duration = "N/A";
     if (complaint.createdAt && complaint.resolvedAt) {
-        const createdAtDate = new Date(complaint.createdAt);
-        const resolvedAtDate = new Date(complaint.resolvedAt);
-        const diffTime = Math.abs(resolvedAtDate - createdAtDate);
-        duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const createdAtDate = new Date(complaint.createdAt);
+      const resolvedAtDate = new Date(complaint.resolvedAt);
+      const diffTime = Math.abs(resolvedAtDate - createdAtDate);
+      duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
     const price = parseFloat(complaint.price.toString()) || 0;
@@ -108,9 +111,10 @@ const generateReport = async (complaints) => {
     htmlContent += `
         <tr>
             <td>${index + 1}</td>
-            <td>${complaint.raiserName || 'N/A'}</td>
-            <td>${complaint.subject || 'N/A'}</td>
-            <td>${complaint.department || 'N/A'}</td>
+            <td>${complaint._id}</td>
+            <td>${complaint.raiserName || "N/A"}</td>
+            <td>${complaint.subject || "N/A"}</td>
+            <td>${complaint.department || "N/A"}</td>
             <td>${formattedCreatedAt}</td>
             <td>${formattedResolvedAt}</td>
             <td>${status}</td>
@@ -133,7 +137,7 @@ const generateReport = async (complaints) => {
   `;
 
   const file = { content: htmlContent };
-  
+
   return file;
 };
 
