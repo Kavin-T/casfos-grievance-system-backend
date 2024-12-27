@@ -169,66 +169,86 @@ const yourActivity = asyncHandler(async (req, res) => {
 const getComplaintStatistics = asyncHandler(async (req, res) => {
   const { year, month } = req.query;
 
-  let filter = {};
+  let match = {};
 
-  // If a specific year is provided, filter by year
   if (year && year !== "All") {
-    filter.createdAt = {
+    match.createdAt = {
       $gte: new Date(`${year}-01-01`),
       $lt: new Date(`${Number(year) + 1}-01-01`),
     };
   }
 
-  // If a specific month is provided, filter by month
   if (month && month !== "All") {
-    const monthStart = new Date(`${year || new Date().getFullYear()}-${month}-01`);
+    const monthStart = new Date(
+      `${year || new Date().getFullYear()}-${month}-01`
+    );
     const monthEnd = new Date(monthStart);
     monthEnd.setMonth(monthStart.getMonth() + 1);
-    filter.createdAt = {
-      ...filter.createdAt,
+    match.createdAt = {
+      ...match.createdAt,
       $gte: monthStart,
       $lt: monthEnd,
     };
   }
 
-  const complaints = await Complaint.find(filter);
-
-  const totalComplaints = complaints.length;
-  const pendingComplaints = complaints.filter(
-    (c) => c.status !== "RESOLVED"
-  ).length;
-  const resolvedComplaints = complaints.filter(
-    (c) => c.status === "RESOLVED"
-  ).length;
-
-  const departmentWise = complaints.reduce(
-    (acc, complaint) => {
-      const dept = complaint.department;
-      acc[dept] = acc[dept] || { pending: 0, resolved: 0, price: 0 };
-      if (complaint.status === "RESOLVED") acc[dept].resolved++;
-      else acc[dept].pending++;
-
-      // Adding to total price for each department
-      acc[dept].price += parseFloat(complaint.price);
-      return acc;
+  const statistics = await Complaint.aggregate([
+    { $match: match },
+    {
+      $group: {
+        _id: "$department",
+        totalComplaints: { $sum: 1 },
+        pendingComplaints: {
+          $sum: { $cond: [{ $ne: ["$status", "RESOLVED"] }, 1, 0] },
+        },
+        resolvedComplaints: {
+          $sum: { $cond: [{ $eq: ["$status", "RESOLVED"] }, 1, 0] },
+        },
+        totalPrice: { $sum: { $toDouble: "$price" } },
+      },
     },
-    {}
+    {
+      $group: {
+        _id: null,
+        totalComplaints: { $sum: "$totalComplaints" },
+        pendingComplaints: { $sum: "$pendingComplaints" },
+        resolvedComplaints: { $sum: "$resolvedComplaints" },
+        departmentWise: {
+          $push: {
+            department: "$_id",
+            pending: "$pendingComplaints",
+            resolved: "$resolvedComplaints",
+            price: "$totalPrice",
+          },
+        },
+        totalPrice: { $sum: "$totalPrice" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalComplaints: 1,
+        pendingComplaints: 1,
+        resolvedComplaints: 1,
+        departmentWise: 1,
+        totalPrice: 1,
+      },
+    },
+  ]);
+
+  res.json(
+    statistics[0] || {
+      totalComplaints: 0,
+      pendingComplaints: 0,
+      resolvedComplaints: 0,
+      departmentWise: [],
+      totalPrice: 0,
+    }
   );
-
-  const totalPrice = complaints.reduce((sum, c) => sum + parseFloat(c.price), 0);
-
-  res.json({
-    totalComplaints,
-    pendingComplaints,
-    resolvedComplaints,
-    departmentWise,
-    totalPrice,
-  });
 });
 
 module.exports = {
   addComplaint,
   fetchComplaints,
   yourActivity,
-  getComplaintStatistics
+  getComplaintStatistics,
 };
