@@ -13,7 +13,7 @@ const validateDesignation = require("../middleware/validateDesignationHandler");
 const router = express.Router();
 
 router.get('/your-activity',yourActivity);
-router.post('/add',ensureTempDirectory,upload.fields([{ name: 'imgBefore' }, { name: 'vidBefore' }]),addComplaint);
+router.post('/add',validateDesignation(["ESTATE_OFFICER","COMPLAINT_RAISER"]),ensureTempDirectory,upload.fields([{ name: 'imgBefore' }, { name: 'vidBefore' }]),addComplaint);
 router.get('/statistics',getComplaintStatistics);
 router.get('/',fetchComplaints);
 

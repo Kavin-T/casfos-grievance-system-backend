@@ -8,6 +8,8 @@ const {
 const validateDesignation = require("../middleware/validateDesignationHandler");
 const router = express.Router();
 
+router.use(validateDesignation(["ESTATE_OFFICER"]));
+
 router.post("/add", addUser);
 router.put("/update", updateUser);
 router.delete("/delete/:id", deleteUser);

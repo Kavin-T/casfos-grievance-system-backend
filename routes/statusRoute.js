@@ -15,9 +15,10 @@ const { upload, ensureTempDirectory } = require("../middleware/fileHandler");
 const validateDesignation = require("../middleware/validateDesignationHandler");
 const router = express.Router();
 
-router.put("/raised/je-acknowledged", raisedToJeAcknowledged);
+router.put("/raised/je-acknowledged",validateDesignation(["JUNIOR_ENGINEER"]), raisedToJeAcknowledged);
 router.post(
   "/je-acknowledged/je-workdone",
+  validateDesignation(["JUNIOR_ENGINEER"]),
   ensureTempDirectory,
   upload.fields([
     { name: "imgAfter", maxCount: 1 },
@@ -25,13 +26,13 @@ router.post(
   ]),
   jeAcknowledgedToJeWorkdone
 );
-router.put("/je-workdone/ae-acknowledged", jeWorkDoneToAeAcknowledged);
-router.put("/ae-acknowledged/ee-acknowledged", aeAcknowledgedToEeAcknowledged);
-router.put("/ee-acknowledged/resolved", eeAcknowledgedToResolved);
-router.put("/je-workdone/ae-not-satisfied", jeWorkdoneToAeNotSatisfied);
-router.put("/ae-acknowledged/ee-not-satisfied", aeAcknowledgedToEeNotSatisfied);
-router.put("/raised/resource-required", raisedToResourceRequired);
-router.put("/resource-required/closed", resourceRequiredToClosed);
-router.put("/resource-required/raised", resourceRequiredToRaised);
+router.put("/je-workdone/ae-acknowledged",validateDesignation(["ASSISTANT_ENGINEER"]), jeWorkDoneToAeAcknowledged);
+router.put("/ae-acknowledged/ee-acknowledged", validateDesignation(["EXECUTIVE_ENGINEER"]), aeAcknowledgedToEeAcknowledged);
+router.put("/ee-acknowledged/resolved",validateDesignation(["COMPLAINT_RAISER"]), eeAcknowledgedToResolved);
+router.put("/je-workdone/ae-not-satisfied",validateDesignation(["ASSISTANT_ENGINEER"]), jeWorkdoneToAeNotSatisfied);
+router.put("/ae-acknowledged/ee-not-satisfied", validateDesignation(["EXECUTIVE_ENGINEER"]), aeAcknowledgedToEeNotSatisfied);
+router.put("/raised/resource-required",validateDesignation(["ASSISTANT_ENGINEER"]), raisedToResourceRequired);
+router.put("/resource-required/closed",validateDesignation(["COMPLAINT_RAISER"]), resourceRequiredToClosed);
+router.put("/resource-required/raised",validateDesignation(["COMPLAINT_RAISER"]), resourceRequiredToRaised);
 
 module.exports = router;

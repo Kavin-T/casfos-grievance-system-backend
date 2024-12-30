@@ -9,11 +9,6 @@ const generateComplaintReport = asyncHandler(async (req, res) => {
   const query = getQuery(filters);
   const complaints = await Complaint.find(query).exec();
 
-  if (complaints.length === 0) {
-    res.status(404);
-    throw new Error("No complaints found for the given filters.");
-  }
-
   const file = await generateReport(complaints);
   const pdfBuffer = await pdf.generatePdf(file, { format: "A2" });
 
