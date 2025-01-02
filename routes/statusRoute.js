@@ -57,7 +57,7 @@ router.put(
 );
 router.put(
   "/raised/resource-required",
-  validateDesignation(["ASSISTANT_ENGINEER"]),
+  validateDesignation(["JUNIOR_ENGINEER"]),
   raisedToResourceRequired
 );
 router.put(

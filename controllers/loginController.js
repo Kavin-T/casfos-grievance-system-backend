@@ -8,7 +8,6 @@ const User = require("../models/userModel");
 
 const validateLogin = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body);
 
   const user = await User.findOne({ username });
 
