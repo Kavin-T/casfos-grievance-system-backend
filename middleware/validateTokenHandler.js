@@ -2,21 +2,20 @@ const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 
 const validateToken = asyncHandler(async (req, res, next) => {
-  let token;
-  let authHeader = req.headers.authorization || req.headers.Authorization;
-  if (authHeader && authHeader.startsWith("Bearer")) {
-    token = authHeader.split(" ")[1];
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        res.status(401);
-        throw new Error("Token expired or invalid. Login again.");
-      }
-      req.user = decoded;
-      next();
-    });
-  } else {
+  const token = req.cookies.token;
+
+  if (!token) {
     res.status(401);
-    throw new Error("Token missing. Login again.");
+    throw new Error("Token Missing. Login Again.");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(403);
+    throw new Error("Invalid or expired token");
   }
 });
 

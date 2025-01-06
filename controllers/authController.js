@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/userModel");
 
-const validateLogin = asyncHandler(async (req, res) => {
+const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ username });
@@ -27,10 +27,15 @@ const validateLogin = asyncHandler(async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
       );
+      res.cookie("token", accessToken, {
+        withCredentials: true,
+        httpOnly: false,
+        maxAge: 3600000
+      });
       res.status(200).json({
-        id: user._id,
         username: user.username,
-        token: accessToken,
+        designation: user.designation,
+        message: "Login successful!",
       });
     } else {
       res.status(400);
@@ -39,4 +44,8 @@ const validateLogin = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = validateLogin;
+const check = asyncHandler(async (req, res) => {
+  res.status(200).json({ authenticated: true });
+});
+
+module.exports = { login, check };
