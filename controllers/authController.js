@@ -30,7 +30,7 @@ const login = asyncHandler(async (req, res) => {
       res.cookie("token", accessToken, {
         withCredentials: true,
         httpOnly: false,
-        maxAge: 3600000
+        maxAge: 3600000,
       });
       res.status(200).json({
         username: user.username,

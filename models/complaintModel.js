@@ -1,7 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const AutoIncrement = require("mongoose-sequence")(mongoose);
 
 const complaintSchema = new mongoose.Schema({
-  raiserName: {
+  complaintID: {
+    type: Number,
+    unique: true,
+  },
+  complainantName: {
     type: String,
     required: true,
     trim: true,
@@ -22,7 +27,7 @@ const complaintSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    enum: ['CIVIL', 'ELECTRICAL'],
+    enum: ["CIVIL", "ELECTRICAL"],
     required: true,
   },
   premises: {
@@ -35,40 +40,48 @@ const complaintSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  media: {
-    imgBefore: {
-      type: String,
-    },
-    vidBefore: {
-      type: String,
-    },
-    imgAfter: {
-      type: String,
-      default: null,
-    },
-    vidAfter: {
-      type: String,
-      default: null,
-    },
+  specificLocation: {
+    type: String,
+    trim: true,
+  },
+  imgBefore: {
+    type: [String],
+    default: [],
+  },
+  imgAfter: {
+    type: [String],
+    default: [],
+  },
+  vidBefore: {
+    type: [String],
+    default: [],
+  },
+  vidAfter: {
+    type: [String],
+    default: [],
   },
   emergency: {
     type: Boolean,
     default: false,
   },
+  reRaised: {
+    type: Boolean,
+    default: false,
+  },
   status: {
     type: String,
-    default: 'RAISED',
+    default: "RAISED",
     enum: [
-      'RAISED',
-      'JE_ACKNOWLEDGED',
-      'JE_WORKDONE',
-      'AE_ACKNOWLEDGED',
-      'EE_ACKNOWLEDGED',
-      'RESOLVED',
-      'CLOSED',
-      'RESOURCE_REQUIRED',
-      'AE_NOT_SATISFIED',
-      'EE_NOT_SATISFIED',
+      "RAISED",
+      "JE_ACKNOWLEDGED",
+      "JE_WORKDONE",
+      "AE_ACKNOWLEDGED",
+      "EE_ACKNOWLEDGED",
+      "RESOLVED",
+      "CLOSED",
+      "RESOURCE_REQUIRED",
+      "AE_NOT_SATISFIED",
+      "EE_NOT_SATISFIED",
     ],
   },
   price: {
@@ -114,6 +127,8 @@ const complaintSchema = new mongoose.Schema({
   },
 });
 
-const Complaint = mongoose.model('Complaint', complaintSchema);
+complaintSchema.plugin(AutoIncrement, { inc_field: "complaintID" });
+
+const Complaint = mongoose.model("Complaint", complaintSchema);
 
 module.exports = Complaint;

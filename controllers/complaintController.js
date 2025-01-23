@@ -6,7 +6,7 @@ const getQuery = require("../helper/queryHelper");
 
 const addComplaint = asyncHandler(async (req, res) => {
   const {
-    raiserName,
+    complainantName,
     subject,
     date,
     details,
@@ -17,7 +17,7 @@ const addComplaint = asyncHandler(async (req, res) => {
   } = req.body;
 
   if (
-    !raiserName ||
+    !complainantName ||
     !subject ||
     !date ||
     !details ||
@@ -48,7 +48,7 @@ const addComplaint = asyncHandler(async (req, res) => {
   }
 
   const newComplaint = new Complaint({
-    raiserName,
+    complainantName,
     subject,
     date: new Date(date),
     details,
@@ -138,27 +138,61 @@ const yourActivity = asyncHandler(async (req, res) => {
   }
 
   let statuses = [];
+  let department = null;
 
   switch (designation) {
+    
+    case "PRINCIPAL":
     case "ESTATE_OFFICER":
-    case "COMPLAINT_RAISER":
+    case "ASSISTANT_TO_ESTATE_OFFICER":
+    case "COMPLAINANT":
       statuses = ["EE_ACKNOWLEDGED", "RESOURCE_REQUIRED"];
       break;
-    case "EXECUTIVE_ENGINEER":
+    
+    case "EXECUTIVE_ENGINEER_CIVIL":
       statuses = ["AE_ACKNOWLEDGED"];
+      department = "CIVIL";
       break;
-    case "ASSISTANT_ENGINEER":
+
+    case "EXECUTIVE_ENGINEER_ELECTRICAL":
+      statuses = ["AE_ACKNOWLEDGED"];
+      department = "ELECTRICAL";
+      break;
+    
+    case "ASSISTANT_ENGINEER_CIVIL":
       statuses = ["JE_WORKDONE", "EE_NOT_SATISFIED"];
+      department = "CIVIL";
       break;
-    case "JUNIOR_ENGINEER":
+
+    case "ASSISTANT_ENGINEER_ELECTRICAL":
+      statuses = ["JE_WORKDONE", "EE_NOT_SATISFIED"];
+      department = "ELECTRICAL";
+      break;
+
+    case "JUNIOR_ENGINEER_CIVIL":
       statuses = ["RAISED", "JE_ACKNOWLEDGED", "AE_NOT_SATISFIED"];
+      department = "CIVIL";
       break;
+
+    case "JUNIOR_ENGINEER_ELECTRICAL":
+      statuses = ["RAISED", "JE_ACKNOWLEDGED", "AE_NOT_SATISFIED"];
+      department = "ELECTRICAL";
+      break;
+
     default:
       res.status(403);
       throw new Error("Invalid designation");
   }
 
-  const complaints = await Complaint.find({ status: { $in: statuses } }).sort({
+  const query = {
+    status: { $in: statuses },
+  };
+
+  if (department) {
+    query.department = department;
+  }
+
+  const complaints = await Complaint.find(query).sort({
     emergency: -1,
     createdAt: -1,
   });

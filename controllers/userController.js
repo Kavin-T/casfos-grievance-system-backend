@@ -23,7 +23,6 @@ const addUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "User added successfully", user });
 });
 
-
 const updateUser = asyncHandler(async (req, res) => {
   const { id, password, ...updates } = req.body;
 
@@ -57,7 +56,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find();
+  const users = await User.find().select('-passwordHash');
   res.status(200).json({ users });
 });
 

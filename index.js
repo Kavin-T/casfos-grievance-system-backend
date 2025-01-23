@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 600,
+  max: 4000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many requests, please try again later." },
@@ -38,12 +38,12 @@ app.use("/api/v1/auth", require("./routes/authRoute"));
 app.use("/api/v1/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/api/v1/report", require("./routes/reportRoute"));
-app.use("/api/v1/user", require("./routes/userRoute"));
 
 app.use(validateToken);
 
 app.use("/api/v1/complaint", require("./routes/complaintRoute"));
 app.use("/api/v1/status", require("./routes/statusRoute"));
+app.use("/api/v1/user", require("./routes/userRoute"));
 
 app.use(errorHandler);
 

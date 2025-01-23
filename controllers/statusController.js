@@ -4,7 +4,7 @@ const fs = require('fs');
 const Complaint = require('../models/complaintModel');
 
 const raisedToJeAcknowledged = asyncHandler(async (req, res) => {
-  const { id } = req.body; 
+  const { id } = req.body;
   const username = req.user.username;
 
   if (!username) {
