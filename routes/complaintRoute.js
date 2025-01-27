@@ -19,7 +19,12 @@ router.post(
     "ASSISTANT_TO_ESTATE_OFFICER",
   ]),
   ensureTempDirectory,
-  upload.fields([{ name: "imgBefore" }, { name: "vidBefore" }]),
+  upload.fields([
+    { name: "imgBefore_1", maxCount: 1 },
+    { name: "imgBefore_2", maxCount: 1 },
+    { name: "imgBefore_3", maxCount: 1 },
+    { name: "vidBefore", maxCount: 1 },
+  ]),
   addComplaint
 );
 router.get("/statistics", getComplaintStatistics);

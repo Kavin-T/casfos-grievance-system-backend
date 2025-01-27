@@ -13,8 +13,11 @@ const addComplaint = asyncHandler(async (req, res) => {
     department,
     premises,
     location,
+    specificLocation,
     emergency,
   } = req.body;
+
+  console.log(req.files);
 
   if (
     !complainantName ||
@@ -31,22 +34,6 @@ const addComplaint = asyncHandler(async (req, res) => {
 
   const isEmergency = emergency === "true";
 
-  if (req.files?.imgBefore) {
-    const imgBeforeSize = req.files.imgBefore[0].size;
-    if (imgBeforeSize > 5 * 1024 * 1024) {
-      res.status(400);
-      throw new Error("File size of Image exceeds 5MB.");
-    }
-  }
-
-  if (req.files?.vidBefore) {
-    const vidBeforeSize = req.files.vidBefore[0].size;
-    if (vidBeforeSize > 100 * 1024 * 1024) {
-      res.status(400);
-      throw new Error("File size of Video exceeds 100MB.");
-    }
-  }
-
   const newComplaint = new Complaint({
     complainantName,
     subject,
@@ -55,50 +42,42 @@ const addComplaint = asyncHandler(async (req, res) => {
     department,
     premises,
     location,
+    specificLocation,
     emergency: isEmergency,
-    media: {
-      imgAfter: null,
-      vidAfter: null,
-    },
   });
 
   const savedComplaint = await newComplaint.save();
-  const id = savedComplaint._id.toString();
+  const complaintID = savedComplaint.complaintID;
 
   const uploadsDir = path.resolve(__dirname, "../uploads");
-  const complaintDir = path.join(uploadsDir, id);
+  const complaintDir = path.join(uploadsDir, `${complaintID}`);
   fs.mkdirSync(complaintDir, { recursive: true });
 
-  let imgBeforePath = null;
-  let vidBeforePath = null;
+  let imgBeforePaths = [];
+  let vidBeforePaths = [];
 
-  if (req.files?.imgBefore) {
-    const imgBeforeTempPath = req.files.imgBefore[0].path;
-    const imgBeforeFullPath = path.join(complaintDir, `imgBefore_${id}.jpg`);
-    fs.renameSync(imgBeforeTempPath, imgBeforeFullPath);
+  Object.keys(req.files).forEach((key) => {
+    if (key.startsWith("imgBefore")) {
+      const file = req.files[key][0];
+      const imgBeforeFileName = `${key}_${complaintID}.jpg`;
+      const imgBeforeFullPath = path.join(complaintDir, imgBeforeFileName);
+      fs.renameSync(file.path, imgBeforeFullPath);
+      imgBeforePaths.push(`uploads/${complaintID}/${imgBeforeFileName}`);
+    }
+  });
 
-    imgBeforePath = path
-      .relative(uploadsDir, imgBeforeFullPath)
-      .replace(/\\/g, "/");
-  }
+  Object.keys(req.files).forEach((key) => {
+    if (key.startsWith("vidBefore")) {
+      const file = req.files[key][0];
+      const vidBeforeFileName = `${key}_${complaintID}.mp4`;
+      const vidBeforeFullPath = path.join(complaintDir, vidBeforeFileName);
+      fs.renameSync(file.path, vidBeforeFullPath);
+      vidBeforePaths.push(`uploads/${complaintID}/${vidBeforeFileName}`);
+    }
+  });
 
-  if (req.files?.vidBefore) {
-    const vidBeforeTempPath = req.files.vidBefore[0].path;
-    const vidBeforeFullPath = path.join(complaintDir, `vidBefore_${id}.mp4`);
-    fs.renameSync(vidBeforeTempPath, vidBeforeFullPath);
-
-    vidBeforePath = path
-      .relative(uploadsDir, vidBeforeFullPath)
-      .replace(/\\/g, "/");
-  }
-
-  savedComplaint.media = {
-    imgBefore: imgBeforePath ? `uploads/${imgBeforePath}` : null,
-    vidBefore: vidBeforePath ? `uploads/${vidBeforePath}` : null,
-    imgAfter: null,
-    vidAfter: null,
-  };
-
+  savedComplaint.imgBefore = imgBeforePaths;
+  savedComplaint.vidBefore = vidBeforePaths;
   await savedComplaint.save();
 
   res.status(200).json({
@@ -141,14 +120,13 @@ const yourActivity = asyncHandler(async (req, res) => {
   let department = null;
 
   switch (designation) {
-    
     case "PRINCIPAL":
     case "ESTATE_OFFICER":
     case "ASSISTANT_TO_ESTATE_OFFICER":
     case "COMPLAINANT":
       statuses = ["EE_ACKNOWLEDGED", "RESOURCE_REQUIRED"];
       break;
-    
+
     case "EXECUTIVE_ENGINEER_CIVIL":
       statuses = ["AE_ACKNOWLEDGED"];
       department = "CIVIL";
@@ -158,7 +136,7 @@ const yourActivity = asyncHandler(async (req, res) => {
       statuses = ["AE_ACKNOWLEDGED"];
       department = "ELECTRICAL";
       break;
-    
+
     case "ASSISTANT_ENGINEER_CIVIL":
       statuses = ["JE_WORKDONE", "EE_NOT_SATISFIED"];
       department = "CIVIL";
@@ -284,5 +262,5 @@ module.exports = {
   addComplaint,
   fetchComplaints,
   yourActivity,
-  getComplaintStatistics,
+  getComplaintStatistics
 };

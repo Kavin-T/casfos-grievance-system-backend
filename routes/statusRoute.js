@@ -10,6 +10,7 @@ const {
   raisedToResourceRequired,
   resourceRequiredToClosed,
   resourceRequiredToRaised,
+  changeComplaintDepartment,
 } = require("../controllers/statusController");
 const { upload, ensureTempDirectory } = require("../middleware/fileHandler");
 const validateDesignation = require("../middleware/validateDesignationHandler");
@@ -25,7 +26,9 @@ router.post(
   validateDesignation(["JUNIOR_ENGINEER_CIVIL", "JUNIOR_ENGINEER_ELECTRICAL"]),
   ensureTempDirectory,
   upload.fields([
-    { name: "imgAfter", maxCount: 1 },
+    { name: "imgAfter_1", maxCount: 1 },
+    { name: "imgAfter_2", maxCount: 1 },
+    { name: "imgAfter_3", maxCount: 1 },
     { name: "vidAfter", maxCount: 1 },
   ]),
   jeAcknowledgedToJeWorkdone
@@ -96,6 +99,12 @@ router.put(
     "ASSISTANT_TO_ESTATE_OFFICER",
   ]),
   resourceRequiredToRaised
+);
+
+router.put(
+  "/change-department",
+  validateDesignation(["JUNIOR_ENGINEER_CIVIL", "JUNIOR_ENGINEER_ELECTRICAL"]),
+  changeComplaintDepartment
 );
 
 module.exports = router;
