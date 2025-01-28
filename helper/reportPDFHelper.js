@@ -124,7 +124,7 @@ const generateReport = async (complaints) => {
         htmlContent += `
             <tr>
                 <td>${index + 1}</td>
-                <td>${complaint._id}</td>
+                <td>${complaint.complaintID}</td>
                 <td>${complaint.raiserName || "N/A"}</td>
                 <td>${complaint.subject || "N/A"}</td>
                 <td>${complaint.department || "N/A"}</td>

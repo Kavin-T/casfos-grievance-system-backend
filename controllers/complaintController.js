@@ -179,29 +179,19 @@ const yourActivity = asyncHandler(async (req, res) => {
 });
 
 const getComplaintStatistics = asyncHandler(async (req, res) => {
-  const { year, month } = req.query;
+  const { fromDate, toDate } = req.query;
 
-  let match = {};
-
-  if (year && year !== "All") {
-    match.createdAt = {
-      $gte: new Date(`${year}-01-01`),
-      $lt: new Date(`${Number(year) + 1}-01-01`),
-    };
+  if (!fromDate) {
+    res.status(400);
+    throw new Error("Start date (fromDate) is required.");
   }
 
-  if (month && month !== "All") {
-    const monthStart = new Date(
-      `${year || new Date().getFullYear()}-${month}-01`
-    );
-    const monthEnd = new Date(monthStart);
-    monthEnd.setMonth(monthStart.getMonth() + 1);
-    match.createdAt = {
-      ...match.createdAt,
-      $gte: monthStart,
-      $lt: monthEnd,
-    };
-  }
+  let match = {
+    createdAt: {
+      $gte: new Date(fromDate),
+      $lt: new Date(toDate || new Date().toISOString()),
+    },
+  };
 
   const statistics = await Complaint.aggregate([
     { $match: match },
@@ -210,10 +200,10 @@ const getComplaintStatistics = asyncHandler(async (req, res) => {
         _id: "$department",
         totalComplaints: { $sum: 1 },
         pendingComplaints: {
-          $sum: { $cond: [{ $ne: ["$status", "RESOLVED"] }, 1, 0] },
+          $sum: { $cond: [{ $ne: ["$status", "Resolved"] }, 1, 0] },
         },
         resolvedComplaints: {
-          $sum: { $cond: [{ $eq: ["$status", "RESOLVED"] }, 1, 0] },
+          $sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] },
         },
         totalPrice: { $sum: { $toDouble: "$price" } },
       },
@@ -262,5 +252,5 @@ module.exports = {
   addComplaint,
   fetchComplaints,
   yourActivity,
-  getComplaintStatistics
+  getComplaintStatistics,
 };
