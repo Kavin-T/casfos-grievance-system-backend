@@ -10,7 +10,7 @@ const {
 const generateCSVReport = (complaints) => {
   const fields = [
     { label: "ID", value: "complaintID" },
-    { label: "Raiser Name", value: "complainantName" },
+    { label: "Complainant Name", value: "complainantName" },
     { label: "Subject", value: "subject" },
     {
       label: "Date Raised",
@@ -24,34 +24,34 @@ const generateCSVReport = (complaints) => {
     { label: "Re-Raised", value: (row) => (row.reRaised ? "Yes" : "No") },
     { label: "Status", value: (row) => statusFormat(row.status) },
     {
-      label: "Created At",
+      label: "Created On",
       value: (row) => (row.createdAt ? dateFormat(row.createdAt) : "N/A"),
     },
     {
-      label: "Acknowledged At",
+      label: "Acknowledged On",
       value: (row) =>
         row.acknowledgeAt ? dateFormat(row.acknowledgeAt) : "N/A",
     },
     {
-      label: "Resolved At",
+      label: "Resolved On",
       value: (row) => (row.resolvedAt ? dateFormat(row.resolvedAt) : "N/A"),
     },
     {
-      label: "Duration (Created to Acknowledged)",
+      label: "Time elapsed for Acknowledgement",
       value: (row) =>
         row.createdAt && row.acknowledgeAt
           ? calculateDuration(row.createdAt, row.acknowledgeAt)
           : "N/A",
     },
     {
-      label: "Duration (Created to Resolved)",
+      label: "Time elapsed for Resolution",
       value: (row) =>
         row.createdAt && row.resolvedAt
           ? calculateDuration(row.createdAt, row.resolvedAt)
           : "N/A",
     },
     {
-      label: "Price",
+      label: "Expenditure",
       value: (row) => priceFormat(row.price || 0),
     },
     { label: "Remark by JE", value: "remark_JE" },

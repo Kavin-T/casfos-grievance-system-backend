@@ -370,8 +370,6 @@ const resourceRequiredToRaised = asyncHandler(async (req, res) => {
 const changeComplaintDepartment = asyncHandler(async (req, res) => {
   const { id, newDepartment } = req.body;
 
-  console.log(req.body);
-
   if (!id || !newDepartment) {
     res.status(400);
     throw new Error("Complaint ID and new department are required.");

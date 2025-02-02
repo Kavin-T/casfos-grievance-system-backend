@@ -17,8 +17,6 @@ const addComplaint = asyncHandler(async (req, res) => {
     emergency,
   } = req.body;
 
-  console.log(req.files);
-
   if (
     !complainantName ||
     !subject ||
